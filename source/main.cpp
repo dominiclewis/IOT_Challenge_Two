@@ -13,9 +13,9 @@ void listen();
 void send();
 
 MicroBit uBit; //Our instantiation
-MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_DIGITAL); //Send
+MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_DIGITAL); //Send
 MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_ALL); // Listen
-buttonA(MICROBIT_PIN_BUTTON_A, MICROBIT_ID_BUTTON_A); //Can use to get button A time
+MicroBitButton buttonA(MICROBIT_PIN_BUTTON_A, MICROBIT_ID_BUTTON_A); //Can use to get button A time
 bool readMode = true; //If false then it's in send mode
 
 /*
@@ -26,9 +26,6 @@ bool readMode = true; //If false then it's in send mode
 void on_button_a(MicroBitEvent e) //Move left
 {
 
-//if (buttonA.isPressed()){
-  uBit.display.scrollAsync("Test");
-//}
 }
 
 /*
@@ -69,10 +66,34 @@ void listen(){
 */
 void send(){
   //Toggle LED
-  P0.setDigitalValue(1);
-
+/*  P0.setDigitalValue(1);
   uBit.sleep(500);
   P0.setDigitalValue(0);
+  */
+  bool pressed = false;
+  while(buttonA.isPressed()){
+    uint64_t startTime = system_timer_current_time(); //Get start time
+    while(buttonA.isPressed()){
+      pressed = true;
+    }
+    //Get the delta (the difference)
+    uint64_t delta = system_timer_current_time() - startTime;
+    //uBit.display.print((int)delta);
+    if (pressed){
+      if( (delta >= 700) && (delta <= 1500)){
+        //long press
+        uBit.display.print("-");
+        uBit.sleep(500);
+      } else if(delta < 700){
+        //short press
+        uBit.display.print(".");
+        uBit.sleep(500);
+      }
+      pressed = false;
+      uBit.display.clear();
+    }
+
+  }
 
 }
 
@@ -81,7 +102,7 @@ int main()
     // Initialise the micro:bit runtime.
     uBit.init();
     //Listeners below
-    uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, on_button_a);
+    //uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, on_button_a);
     uBit.messageBus.listen(MICROBIT_ID_BUTTON_B, MICROBIT_BUTTON_EVT_CLICK, on_button_b);
 
     while(1){
