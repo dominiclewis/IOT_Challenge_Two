@@ -9,11 +9,14 @@
 //Prototypes
 void on_button_a(MicroBitEvent);
 void on_button_b(MicroBitEvent);
+void listen();
+void send();
 
 MicroBit uBit; //Our instantiation
 MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_DIGITAL); //Send
 MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_ALL); // Listen
-//buttonA(MICROBIT_PIN_BUTTON_A, MICROBIT_ID_BUTTON_A);
+buttonA(MICROBIT_PIN_BUTTON_A, MICROBIT_ID_BUTTON_A); //Can use to get button A time
+bool readMode = true; //If false then it's in send mode
 
 /*
 *Purpose: Event handler for a button
@@ -23,12 +26,11 @@ MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_ALL); // Liste
 void on_button_a(MicroBitEvent e) //Move left
 {
 
-if (buttonA.isPressed()){
-
-
+//if (buttonA.isPressed()){
   uBit.display.scrollAsync("Test");
+//}
 }
-}
+
 /*
 *Purpose: Event handler for b button, moves the player right
 *Accepts: Event object
@@ -36,6 +38,41 @@ if (buttonA.isPressed()){
 */
 void on_button_b(MicroBitEvent e)
 {
+  readMode = !readMode;//inverts it
+  if (readMode){
+      uBit.display.scroll("Listen Mode"); //Not async so we don't block main fiber
+  } else{
+    uBit.display.scroll("Send Mode");
+  }
+
+}
+
+/*
+*Purpose: Logic for the microbit while it's listening
+*Accepts: N/A
+*Returns: (void)
+*Note: Listen on pin 1
+*/
+void listen(){
+  if (P1.getDigitalValue() == 1){ //Listen on p1
+    uBit.display.printAsync("HV");
+  } else{
+    uBit.display.printAsync("LV");
+  }
+}
+
+/*
+*Purpose: Logic for the microbit while it's transmitting a message
+*Accepts: N/A
+*Returns:(void)
+*Note: Send on pin 0
+*/
+void send(){
+  //Toggle LED
+  P0.setDigitalValue(1);
+
+  uBit.sleep(500);
+  P0.setDigitalValue(0);
 
 }
 
@@ -43,28 +80,19 @@ int main()
 {
     // Initialise the micro:bit runtime.
     uBit.init();
-
     //Listeners below
     uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, on_button_a);
     uBit.messageBus.listen(MICROBIT_ID_BUTTON_B, MICROBIT_BUTTON_EVT_CLICK, on_button_b);
 
-    // we use asunc here, to allow the led to start flashing straight away,
-    // i.e. not have to wait for message to be displayed
-    //uBit.display.scrollAsync("Blinky");
     while(1){
-
-        // turn LED on
-        P0.setDigitalValue(1);
-        if (P1.getDigitalValue() == 1){
-          uBit.display.print("D");
+        if (readMode){
+          //Read
+          listen();
+        } else{
+          //Sending
+          send();
         }
-        uBit.sleep(5000);
-        P0.setDigitalValue(0);
-        if (P1.getDigitalValue() == 0 ){
-          uBit.display.print("L");
-        }
-        uBit.sleep(5000);
-
+    uBit.sleep(500);
     }
     release_fiber();
     }
