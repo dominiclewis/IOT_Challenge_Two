@@ -21,6 +21,7 @@ MicroBit uBit; //Our instantiation
 MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_DIGITAL); //Send
 MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_ALL); // Listen
 MicroBitButton buttonA(MICROBIT_PIN_BUTTON_A, MICROBIT_ID_BUTTON_A); //Can use to get button A time
+int64_t buttonLastPressedTime = -1; //default valu
 message userMessage;
 bool readMode = true; //If false then it's in send mode
 
@@ -71,7 +72,7 @@ void listen(){
 *Returns:(void)
 *Note: Send on pin 0
 */
-void send(){
+void getMessage(){
   //Toggle LED
 /*  P0.setDigitalValue(1);
   uBit.sleep(500);
@@ -81,6 +82,7 @@ void send(){
 
   while(buttonA.isPressed()){
     uint64_t startTime = system_timer_current_time(); //Get start time
+    buttonLastPressedTime = startTime;//Set the last pressed
     while(buttonA.isPressed()){
       pressed = true;
     }
@@ -90,19 +92,19 @@ void send(){
     if (pressed){
       if( (delta >= 300) && (delta <= 1000)){
         //long press
-        userMessage.buffer[userMessage.tail] = 1;
+        userMessage.buffer[userMessage.tail] = 1; //dash
         userMessage.tail += 1;
         uBit.display.print("-"); //1
         uBit.sleep(500);
       } else if(delta < 300){
         //short press
-        userMessage.buffer[userMessage.tail] = 0;
+        userMessage.buffer[userMessage.tail] = 0;//dot
         userMessage.tail += 1;
         uBit.display.print(".");//0
         uBit.sleep(500);
       }else if(delta > 4000){
-      //Send Yo
-      uBit.display.print(userMessage.tail);
+      //This would be a break
+      /*uBit.display.print(userMessage.tail);
       uBit.sleep(2000);
         uBit.display.clear();
         if(userMessage.tail != 0){ //if the tail is 0 then it has never been incre
@@ -113,17 +115,19 @@ void send(){
         uBit.display.clear();
         uBit.sleep(1000);
       }
+      */
+      userMessage.buffer[userMessage.tail] = 2; //break
+      userMessage.tail += 1;
+      uBit.display.scroll("Break");
+      uBit.sleep(1000);
     }
-      userMessage.tail = 0; //Reset the tail
-
     }
-
     pressed = false;
     uBit.display.clear();
   }
 
 }
-}
+
 
 int main()
 {
@@ -139,7 +143,14 @@ int main()
           listen();
         } else{
           //Sending
-          send();
+          getMessage();
+          if ( (system_timer_current_time() - buttonLastPressedTime > 6000)&&
+        buttonLastPressedTime != -1){
+            //Time to send it has been a while
+            buttonLastPressedTime = -1; //default value
+            userMessage.tail = 0; //Reset the tail
+            uBit.display.print("Time to send");
+          }
         }
     uBit.sleep(500);
     }
