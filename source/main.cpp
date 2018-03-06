@@ -3,14 +3,22 @@
 * Author: Dominic Lewis
 * Date: 20180304
 * Desc: IOT Assignment 02
+* Note: Encode as a summative int eg. A  = DOT + DASH etc
  */
 #include "MicroBit.h"
+
+//Analog value
+#define DASH 002
+#define DOT 003
+#define BREAK 004
 
 //Prototypes
 void on_button_a(MicroBitEvent);
 void on_button_b(MicroBitEvent);
 void listen();
 void send();
+void sendingMessage();
+int getSendAnalogValue(int);
 
 struct message{
 int buffer [100]; //Big
@@ -18,10 +26,10 @@ int tail = 0; //tracks the index
 };
 
 MicroBit uBit; //Our instantiation
-MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_DIGITAL); //Send
+MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_ALL); //Send
 MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_ALL); // Listen
 MicroBitButton buttonA(MICROBIT_PIN_BUTTON_A, MICROBIT_ID_BUTTON_A); //Can use to get button A time
-int64_t buttonLastPressedTime = -1; //default valu
+int64_t buttonLastPressedTime = -1; //default value
 message userMessage;
 bool readMode = true; //If false then it's in send mode
 
@@ -59,13 +67,58 @@ void on_button_b(MicroBitEvent e)
 *Note: Listen on pin 1
 */
 void listen(){
-  if (P1.getDigitalValue() == 1){ //Listen on p1
-    uBit.display.printAsync("HV");
-  } else{
-    uBit.display.printAsync("LV");
+  uBit.display.print(P1.getAnalogValue());
+  uBit.sleep(500);
+  uBit.display.print("Out",200);
+      uBit.sleep(100);
+  if (P1.getAnalogValue() == BREAK){ //Listen on p1
+    uBit.display.print("2");
+  } else if (P1.getAnalogValue() == DASH ){
+    uBit.display.print("1");
+  } else if (P1.getAnalogValue() == DOT){
+    uBit.sleep(100);
+    uBit.display.print("0");
   }
+  uBit.sleep(500);
 }
+/*
+*Purpose: Logic for getting swapping an integer for an anlog
+*Accepts: integer from the buffer
+*Returns:integer corresponding to the analog value
+*Note:
+*/
+int getSendAnalogValue(int bufferValue){
 
+  switch (bufferValue){
+    case (2)://BREAK
+      return BREAK;
+    case (1): //DASH
+      return DASH;
+    case (0): //DOT
+      return DOT;
+  }
+return -1;
+}
+/*
+*Purpose: Logic for sending a message
+*Accepts: N/A
+*Returns:(void)
+*Note: Send on pin 0
+*/
+void sendingMessage(){
+  for(int i= 0; i <= userMessage.tail; i++){ //loop throught everything
+    int value = getSendAnalogValue(userMessage.buffer[i]); //get the val
+    //uBit.display.scroll("Sending",50);
+
+    uBit.sleep(200);
+    P0.setAnalogValue(value);//Set the pin to be the analog value
+    uBit.sleep(500);
+    uBit.display.scroll(P0.getAnalogValue());
+    uBit.sleep(1000);
+  }
+  uBit.sleep(1000);
+
+}
 /*
 *Purpose: Logic for the microbit while it's transmitting a message
 *Accepts: N/A
@@ -103,19 +156,6 @@ void getMessage(){
         uBit.display.print(".");//0
         uBit.sleep(500);
       }else if(delta > 4000){
-      //This would be a break
-      /*uBit.display.print(userMessage.tail);
-      uBit.sleep(2000);
-        uBit.display.clear();
-        if(userMessage.tail != 0){ //if the tail is 0 then it has never been incre
-          //so the buffer has never ben used
-      for (int i = 0; i <= userMessage.tail; i++){
-        uBit.display.print(userMessage.buffer[i]);
-        uBit.sleep(500);
-        uBit.display.clear();
-        uBit.sleep(1000);
-      }
-      */
       userMessage.buffer[userMessage.tail] = 2; //break
       userMessage.tail += 1;
       uBit.display.scroll("Break");
@@ -133,6 +173,8 @@ int main()
 {
     // Initialise the micro:bit runtime.
     uBit.init();
+    P0.setAnalogValue(1);
+    uBit.sleep(10000);
     //Listeners below
     //uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, on_button_a);
     uBit.messageBus.listen(MICROBIT_ID_BUTTON_B, MICROBIT_BUTTON_EVT_CLICK, on_button_b);
@@ -147,9 +189,12 @@ int main()
           if ( (system_timer_current_time() - buttonLastPressedTime > 6000)&&
         buttonLastPressedTime != -1){
             //Time to send it has been a while
+          //  uBit.display.scroll("Sending");
+        //    uBit.sleep(1000);
+            sendingMessage();
             buttonLastPressedTime = -1; //default value
             userMessage.tail = 0; //Reset the tail
-            uBit.display.print("Time to send");
+
           }
         }
     uBit.sleep(500);
