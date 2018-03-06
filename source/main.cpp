@@ -12,11 +12,18 @@ void on_button_b(MicroBitEvent);
 void listen();
 void send();
 
+struct message{
+int buffer [100]; //Big
+int tail = 0; //tracks the index
+};
+
 MicroBit uBit; //Our instantiation
-MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_DIGITAL); //Send
+MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_DIGITAL); //Send
 MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_ALL); // Listen
 MicroBitButton buttonA(MICROBIT_PIN_BUTTON_A, MICROBIT_ID_BUTTON_A); //Can use to get button A time
+message userMessage;
 bool readMode = true; //If false then it's in send mode
+
 
 /*
 *Purpose: Event handler for a button
@@ -71,6 +78,7 @@ void send(){
   P0.setDigitalValue(0);
   */
   bool pressed = false;
+
   while(buttonA.isPressed()){
     uint64_t startTime = system_timer_current_time(); //Get start time
     while(buttonA.isPressed()){
@@ -80,21 +88,41 @@ void send(){
     uint64_t delta = system_timer_current_time() - startTime;
     //uBit.display.print((int)delta);
     if (pressed){
-      if( (delta >= 700) && (delta <= 1500)){
+      if( (delta >= 300) && (delta <= 1000)){
         //long press
-        uBit.display.print("-");
+        userMessage.buffer[userMessage.tail] = 1;
+        userMessage.tail += 1;
+        uBit.display.print("-"); //1
         uBit.sleep(500);
-      } else if(delta < 700){
+      } else if(delta < 300){
         //short press
-        uBit.display.print(".");
+        userMessage.buffer[userMessage.tail] = 0;
+        userMessage.tail += 1;
+        uBit.display.print(".");//0
         uBit.sleep(500);
+      }else if(delta > 4000){
+      //Send Yo
+      uBit.display.print(userMessage.tail);
+      uBit.sleep(2000);
+        uBit.display.clear();
+        if(userMessage.tail != 0){ //if the tail is 0 then it has never been incre
+          //so the buffer has never ben used
+      for (int i = 0; i <= userMessage.tail; i++){
+        uBit.display.print(userMessage.buffer[i]);
+        uBit.sleep(500);
+        uBit.display.clear();
+        uBit.sleep(1000);
       }
-      pressed = false;
-      uBit.display.clear();
+    }
+      userMessage.tail = 0; //Reset the tail
+
     }
 
+    pressed = false;
+    uBit.display.clear();
   }
 
+}
 }
 
 int main()
