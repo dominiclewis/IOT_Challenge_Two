@@ -10,7 +10,7 @@
 #define DASH 1
 #define DOT 0
 #define BREAK 2
-
+#define NUMBITS 4
 
 //Prototypes
 void on_button_a(MicroBitEvent);
@@ -18,6 +18,8 @@ void on_button_b(MicroBitEvent);
 void listen();
 void send();
 void sendingMessage();
+void broadCastBitString(int*);
+void broadcastNewMarker();
 
 
 
@@ -25,6 +27,8 @@ struct message{
 int buffer [100]; //Big
 int tail = 0; //tracks the index
 };
+
+uint64_t messageTmp[200];
 
 
 
@@ -36,14 +40,16 @@ MicroBitButton buttonA(MICROBIT_PIN_BUTTON_A, MICROBIT_ID_BUTTON_A); //Can use t
 int64_t buttonLastPressedTime = -1; //default value
 message userMessage;
 //
-int dashBitString [8] = {1,0,0,1,0,0,0,1}; // -
-int dotBitString [8] = {1,0,1,0,0,1,1,1}; //  .
-int breakBitString [8] = {1,0,0,1,0,0,1,1}; //Break
-int markerBitString [8] = {1,1,0,0,0,1,0,1}; //Beging of a string or end`
+int dashBitString [NUMBITS] = {1,0,1,1}; // -
+int dotBitString [NUMBITS] = {1,1,0,1}; //  .
+int breakBitString [NUMBITS] = {1,0,0,1}; //Break
+int markerBitString [NUMBITS] = {1,1,0,0}; //Beging of a string or end`
 
 bool readMode = true; //If false then it's in send mode
 bool firstValPass = false;
 int valCount = 1;
+bool newMessage = true;
+bool lock = false;
 
 
 /*
@@ -85,61 +91,81 @@ void listen(){
     uBit.display.print(value);
   } else if(firstValPass == true){
     valCount++;
-    if(valCount == 9){
+    if(valCount == (NUMBITS + 1)){
       firstValPass = false;
       valCount = 1;
+      //uBit.display.print("E",50);
     }else{
-    uBit.display.print(value);
+    uBit.display.print(value,30);
     }
   }
 
-  uBit.sleep(500);
+  uBit.sleep(50);
   uBit.display.clear();
-  uBit.sleep(200);
+  uBit.sleep(50);
 
 }
 
-/*
-*Purpose: Logic for sending a message
-*Accepts: N/A
-*Returns:(void)
-*Note: Send on pin 0
-*/
-void sendingMessage(){
-  bool firstSymbol = false;
+void broadcastNewMarker(){
+  for (int y = 0; y < NUMBITS; y++){ //One off loop through the markerBStreak
 
-  for(int i= 0; i <= userMessage.tail; i++){ //loop throught everything
-    uBit.display.scroll("sending",70);
-    if(i ==0 ){
-      firstSymbol = true; //transfer the start value
-      for(int i =0; i < 8; i++){
-        //transmit start
-        P0.setDigitalValue(markerBitString[i]);
-        uBit.sleep(1000);
-        if(i == 8){
-          P0.setDigitalValue(0);
-        }
+    P0.setDigitalValue(markerBitString[y]);
+    //uBit.display.print(markerBitString[y]);
+    uBit.sleep(49);
+    uBit.display.clear();
+    //uBit.sleep(100);
+
+    if (y + 1 == NUMBITS){ //if we're about to finish the new marker bit String
+      newMessage = false;
+      P0.setDigitalValue(0);
+      uBit.sleep(49);
+
+    }
+  }
+}
+
+void broadcastBitString(int *arr){ //arr is a pointer at which integers can be found
+  for(int i = 0; i < NUMBITS; i++){
+    //Loop through references array
+    P0.setDigitalValue( *(arr + i)); //refrence array through pointer
+    uBit.sleep(100);
+    if (i + 1 == NUMBITS){
+      P0.setDigitalValue(0);
+      uBit.sleep(100);
+      //Check if there's a break
+      if (arr != breakBitString){
+        //No break
+        newMessage = true;
 
       }
-
     }
-    else{
-    int value = userMessage.buffer[i]; //get the val
-    switch(value){
-      case (DASH):
-
-          break;
-      case (DOT):
-          break;
-      case (BREAK):
-          break;
-    }
-
   }
-  }
-  uBit.sleep(1000);
-
 }
+
+void sendingMessage(){
+
+  //Loop through the userMessageContent
+  for (int i = 0; i < userMessage.tail; i++){
+    //Loop through userMessageContent[0]'s corresponding BitString
+      if (newMessage){//First output the markerBitString
+        broadcastNewMarker();
+      }
+        //Find the corresponding userMessagebuffer[i] bit string
+        switch(userMessage.buffer[i]){
+          case (DASH):
+            broadcastBitString(dashBitString); //ARR's are * to &[0] anyway
+            break;
+        case (DOT):
+            broadcastBitString(dotBitString);
+            break;
+        case (BREAK):
+            broadcastBitString(breakBitString);
+            break;
+
+        }
+  }
+}
+
 /*
 *Purpose: Logic for the microbit while it's transmitting a message
 *Accepts: N/A
