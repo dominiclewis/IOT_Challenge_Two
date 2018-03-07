@@ -7,10 +7,10 @@
  */
 #include "MicroBit.h"
 
-//Analog value
-#define DASH 002
-#define DOT 003
-#define BREAK 004
+#define DASH 1
+#define DOT 0
+#define BREAK 2
+
 
 //Prototypes
 void on_button_a(MicroBitEvent);
@@ -18,12 +18,16 @@ void on_button_b(MicroBitEvent);
 void listen();
 void send();
 void sendingMessage();
-int getSendAnalogValue(int);
+
+
 
 struct message{
 int buffer [100]; //Big
 int tail = 0; //tracks the index
 };
+
+
+
 
 MicroBit uBit; //Our instantiation
 MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_ALL); //Send
@@ -31,7 +35,15 @@ MicroBitPin P1(MICROBIT_ID_IO_P1, MICROBIT_PIN_P1, PIN_CAPABILITY_ALL); // Liste
 MicroBitButton buttonA(MICROBIT_PIN_BUTTON_A, MICROBIT_ID_BUTTON_A); //Can use to get button A time
 int64_t buttonLastPressedTime = -1; //default value
 message userMessage;
+//
+int dashBitString [8] = {1,0,0,1,0,0,0,1}; // -
+int dotBitString [8] = {1,0,1,0,0,1,1,1}; //  .
+int breakBitString [8] = {1,0,0,1,0,0,1,1}; //Break
+int markerBitString [8] = {1,1,0,0,0,1,0,1}; //Beging of a string or end`
+
 bool readMode = true; //If false then it's in send mode
+bool firstValPass = false;
+int valCount = 1;
 
 
 /*
@@ -64,41 +76,29 @@ void on_button_b(MicroBitEvent e)
 *Purpose: Logic for the microbit while it's listening
 *Accepts: N/A
 *Returns: (void)
-*Note: Listen on pin 1
+*Note: //Detect next 8 changes from first 1
 */
 void listen(){
-  uBit.display.print(P1.getAnalogValue());
-  uBit.sleep(500);
-  uBit.display.print("Out",200);
-      uBit.sleep(100);
-  if (P1.getAnalogValue() == BREAK){ //Listen on p1
-    uBit.display.print("2");
-  } else if (P1.getAnalogValue() == DASH ){
-    uBit.display.print("1");
-  } else if (P1.getAnalogValue() == DOT){
-    uBit.sleep(100);
-    uBit.display.print("0");
+  int value = P1.getDigitalValue();
+  if ((value == 1) && (firstValPass == false)){
+    firstValPass = true;
+    uBit.display.print(value);
+  } else if(firstValPass == true){
+    valCount++;
+    if(valCount == 9){
+      firstValPass = false;
+      valCount = 1;
+    }else{
+    uBit.display.print(value);
+    }
   }
-  uBit.sleep(500);
-}
-/*
-*Purpose: Logic for getting swapping an integer for an anlog
-*Accepts: integer from the buffer
-*Returns:integer corresponding to the analog value
-*Note:
-*/
-int getSendAnalogValue(int bufferValue){
 
-  switch (bufferValue){
-    case (2)://BREAK
-      return BREAK;
-    case (1): //DASH
-      return DASH;
-    case (0): //DOT
-      return DOT;
-  }
-return -1;
+  uBit.sleep(500);
+  uBit.display.clear();
+  uBit.sleep(200);
+
 }
+
 /*
 *Purpose: Logic for sending a message
 *Accepts: N/A
@@ -106,15 +106,36 @@ return -1;
 *Note: Send on pin 0
 */
 void sendingMessage(){
-  for(int i= 0; i <= userMessage.tail; i++){ //loop throught everything
-    int value = getSendAnalogValue(userMessage.buffer[i]); //get the val
-    //uBit.display.scroll("Sending",50);
+  bool firstSymbol = false;
 
-    uBit.sleep(200);
-    P0.setAnalogValue(value);//Set the pin to be the analog value
-    uBit.sleep(500);
-    uBit.display.scroll(P0.getAnalogValue());
-    uBit.sleep(1000);
+  for(int i= 0; i <= userMessage.tail; i++){ //loop throught everything
+    uBit.display.scroll("sending",70);
+    if(i ==0 ){
+      firstSymbol = true; //transfer the start value
+      for(int i =0; i < 8; i++){
+        //transmit start
+        P0.setDigitalValue(markerBitString[i]);
+        uBit.sleep(1000);
+        if(i == 8){
+          P0.setDigitalValue(0);
+        }
+
+      }
+
+    }
+    else{
+    int value = userMessage.buffer[i]; //get the val
+    switch(value){
+      case (DASH):
+
+          break;
+      case (DOT):
+          break;
+      case (BREAK):
+          break;
+    }
+
+  }
   }
   uBit.sleep(1000);
 
@@ -145,18 +166,18 @@ void getMessage(){
     if (pressed){
       if( (delta >= 300) && (delta <= 1000)){
         //long press
-        userMessage.buffer[userMessage.tail] = 1; //dash
+        userMessage.buffer[userMessage.tail] = DASH; //dash
         userMessage.tail += 1;
         uBit.display.print("-"); //1
         uBit.sleep(500);
       } else if(delta < 300){
         //short press
-        userMessage.buffer[userMessage.tail] = 0;//dot
+        userMessage.buffer[userMessage.tail] = DOT;//dot
         userMessage.tail += 1;
         uBit.display.print(".");//0
         uBit.sleep(500);
       }else if(delta > 4000){
-      userMessage.buffer[userMessage.tail] = 2; //break
+      userMessage.buffer[userMessage.tail] = BREAK; //break
       userMessage.tail += 1;
       uBit.display.scroll("Break");
       uBit.sleep(1000);
@@ -173,8 +194,8 @@ int main()
 {
     // Initialise the micro:bit runtime.
     uBit.init();
-    P0.setAnalogValue(1);
-    uBit.sleep(10000);
+    uBit.display.scroll("Listening");
+    uBit.sleep(200);
     //Listeners below
     //uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, on_button_a);
     uBit.messageBus.listen(MICROBIT_ID_BUTTON_B, MICROBIT_BUTTON_EVT_CLICK, on_button_b);
