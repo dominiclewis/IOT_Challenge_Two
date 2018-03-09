@@ -5,26 +5,26 @@
 *Returns: void
 *Accepts: N/A
 */
+/*
 void getChars(){
-  int charStartIndex =-1;
+  int charStartIndex =0;
   int charEndIndex = -1;
-  bool newRun = true;
-  userMessage.tail = userMessage.tail - 2;
+  //bool newRun = true;
+  userMessage.tail = userMessage.tail -2;
+
   string tmp;
   for (int i =0;i <=userMessage.tail; i++){
     uBit.display.print(userMessage.buffer[i]);
     uBit.sleep(1000);
     uBit.display.clear();
-    uBit.sleep(200);
+    uBit.sleep(2000);
   }
+  uBit.display.print(userMessage.tail);
+  uBit.sleep(1000);
 
   //string tmp;
 for (int i = 0; i<= userMessage.tail; i++){
-  if(newRun){
-    charStartIndex = 0;
-    newRun = false;
-  }
-  if((i + 1 > userMessage.tail) || (userMessage.buffer[i+1] == BREAK)){
+  if((i + 1 >= userMessage.tail) || (userMessage.buffer[i+1] == BREAK)){
     charEndIndex = i;
     tmp.clear();
 
@@ -34,14 +34,16 @@ for (int i = 0; i<= userMessage.tail; i++){
       tmp.push_back(userMessage.buffer[x]);
     }
     //lOOK UP TMP
-//    uBit.display.print(morseMap[tmp.c_str()]);
-  //  uBit.sleep(500);
+    uBit.display.print("Here",20);
+    uBit.sleep(400);
+    uBit.display.print(morseMap[tmp.c_str()]);
+    uBit.sleep(5000);
     userMessage.charBuffer[userMessage.charBuffTail] = morseMap[tmp.c_str()];
     userMessage.charBuffTail += 1;
 
     if( (i+1) < userMessage.tail){
-      i +=2;
-      charStartIndex = i;
+      i +=1;
+      charStartIndex = i+=1;
     }
   }
 }
@@ -50,7 +52,32 @@ for (int z =0; z<= userMessage.charBuffTail; z++){
   uBit.sleep(1000);
 }
 }
+*/
+void getChars(){
+  string tmp;
+  uBit.display.print(userMessage.tail);
+  uBit.sleep(1000);
 
+  userMessage.tail = userMessage.tail - 1;
+  for (int bufferChars = 0; bufferChars <=userMessage.tail; bufferChars++){
+    //read till delimited
+    if(userMessage.buffer[bufferChars] != BREAK){
+    tmp.push_back(userMessage.buffer[bufferChars]);
+    continue;
+  } else{
+    //Delimiter found so try to look up temp
+    userMessage.charBuffer[userMessage.charBuffTail] = morseMap[tmp.c_str()];
+    tmp.clear();
+    //Store the value in the string
+    uBit.display.print(userMessage.charBuffTail);
+    uBit.sleep(1000);
+    uBit.display.clear();
+    userMessage.charBuffTail++; //incre by one
+  }
+  //See if there's anothe index in aray
+
+  }
+}
 /*
 Encrypts with a Caesaer Cypher. Shifts chars 7 places right
 */
