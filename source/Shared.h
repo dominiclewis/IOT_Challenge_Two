@@ -27,5 +27,5 @@ const int alphabet[26] = {
 
 extern MicroBit uBit; //Our instantiation
 extern message userMessage;
+
 extern map<string,char> morseMap;
-morseMap[".-"] = alphabet[0];
