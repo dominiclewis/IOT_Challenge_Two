@@ -51,5 +51,6 @@ I'm using the serial Microbit library to transfer characters, this allows me to 
 #Encryption
 I've implemented a Caesar Cipher on the input characters shifting them right 7 bits to encrypt the chars then carrying out the inverse operation to decrypt. This is easily managed in C++ by storing the alphabet in an array and monitoring the characters during the encryption to almost ensure that the array is circular.
 
-Dominic Lewis 
+Dominic Lewis
+ 
 Casey Cheung
