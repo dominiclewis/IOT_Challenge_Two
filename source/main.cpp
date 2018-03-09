@@ -96,7 +96,42 @@ int main()
     uBit.init();
     uBit.display.scroll("MORSE CODE",100);
     uBit.sleep(500);
-    morseMap[".-"] = (char)alphabet[0];
+    morseMap[".-"] = (char)alphabet[0]; // A
+    morseMap["-..."] = (char)alphabet[1]; //B
+    morseMap["-.-."] = (char)alphabet[2]; //C
+    morseMap["-.."] = (char)alphabet[3];//D
+    morseMap["."] = (char)alphabet[4]; //E
+    morseMap["..-."] = (char)alphabet[5];//F
+    morseMap["--."] = (char)alphabet[6]; //G
+    morseMap["...."]= (char)alphabet[7];//H
+    morseMap[".."] = (char)alphabet[8];//I
+    morseMap[".---"] = (char)alphabet[9];//J
+    morseMap["-.-"] = (char)alphabet[10];//K
+    morseMap[".-.."] = (char)alphabet[11]; //L
+    morseMap["--"] = (char)alphabet[12]; //M
+    morseMap["-."]= (char)alphabet[13]; //N
+    morseMap["---"] = (char)alphabet[14];//O
+    morseMap[".--."]= (char)alphabet[15]; //P
+    morseMap["--.-"]= (char)alphabet[16]; //Q
+    morseMap[".-."] = (char)alphabet[17];//R
+    morseMap["..."] = (char)alphabet[18];//S
+    morseMap["-"] = (char)alphabet[19];//T
+    morseMap["..-"] = (char)alphabet[20]; //U
+    morseMap["...-"] = (char)alphabet[21]; //V
+    morseMap[".--"] = (char)alphabet[22]; //W
+    morseMap["-..-"] = (char)alphabet[23]; //X
+    morseMap["-.--"] = (char)alphabet[24]; //Y
+    morseMap["--.."] = (char)alphabet[25]; //Z
+    morseMap[".----"] = (char)alphabet[26]; //1
+    morseMap["..---"] = (char)alphabet[27]; //2
+    morseMap["...--"] = (char)alphabet[28]; //3
+    morseMap["....-"] = (char)alphabet[29]; //4
+    morseMap["....."] = (char)alphabet[30]; //5
+    morseMap["-...."] = (char)alphabet[31]; //6
+    morseMap["--..."] = (char)alphabet[32];//7
+    morseMap["---.."] = (char)alphabet[33];//8
+    morseMap["----."] = (char)alphabet[34];//9
+    morseMap["-----"] = (char)alphabet[35];//0
     uBit.display.print(morseMap[".-"]);
     //morseMap["tst"] = 's';
     //uBit.display.print(morseMap["tst"]);
