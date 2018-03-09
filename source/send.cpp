@@ -9,6 +9,7 @@ void getChars(){
   int charStartIndex =-1;
   int charEndIndex = -1;
   bool newRun = true;
+
   string tmp;
 
   //string tmp;
@@ -95,10 +96,9 @@ for(int i = 0; i < 37; i++){
 *Accepts: N/A
 */
 void send(){
-
   uBit.sleep(100);
   if(uBit.serial.isWriteable() ==1 ){
-    for(int i  = 0; i <=userMessage.charBuffTail; i++){
+    for(int i  = 0; i <= userMessage.charBuffTail; i++){
       uBit.serial.sendChar(encrypt(userMessage.charBuffer[i]),SYNC_SPINWAIT);//Send and block CPU
       uBit.sleep(1000);
     }

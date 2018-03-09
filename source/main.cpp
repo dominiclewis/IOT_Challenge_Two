@@ -13,6 +13,7 @@ MicroBitButton buttonA(MICROBIT_PIN_BUTTON_A, MICROBIT_ID_BUTTON_A);
 message userMessage; //our struct
 int64_t buttonLastPressedTime = -1; //default value
 bool mode = false;
+bool spaceRan = false;
 std::map<string,char> morseMap;//Map for DASH
 
 
@@ -56,24 +57,26 @@ void getMessage(){
     uint64_t delta = system_timer_current_time() - startTime;//button let go
     //uBit.display.print((int)delta);
     if (pressed){
-      if( (delta >= 300) && (delta <= 1000)){
+      if( (delta > 500) && (delta <= 1500)){//Slight hold
         //long press
+        spaceRan = false;
         userMessage.buffer[userMessage.tail] = DASH; //dash
         userMessage.tail += 1;
         uBit.display.print("-"); //1
         uBit.sleep(500);
-      } else if(delta < 300){
+      } else if((delta < 500) && (delta > 80)){ //Little touch
         //short press
+        spaceRan = false;
         userMessage.buffer[userMessage.tail] = DOT;//dot
         userMessage.tail += 1;
         uBit.display.print(".");//0
         uBit.sleep(500);
-      }else if(delta > 2500){
+      }/*else if(delta > 2500){
       userMessage.buffer[userMessage.tail] = BREAK; //break
       userMessage.tail += 1;
       uBit.display.print("_");
       uBit.sleep(1000);
-    }
+    }*/
     }
     pressed = false;
     uBit.display.clear();
@@ -123,9 +126,7 @@ int main()
     morseMap["---.."] = (char)alphabet[33];//8
     morseMap["----."] = (char)alphabet[34];//9
     morseMap["-----"] = (char)alphabet[35];//0
-    //morseMap["tst"] = 's';
-    //uBit.display.print(morseMap["tst"]);
-    //uBit.sleep(5000);
+
     uBit.serial.redirect(MICROBIT_PIN_P0,MICROBIT_PIN_P1);// tx,rx (redirect here so global)
 
     //Default buffer size is fine as circular I think
@@ -138,25 +139,23 @@ int main()
         listen();
       } else{
         getMessage();
-        if ( (system_timer_current_time() - buttonLastPressedTime > 10000)&&
+        if ( (system_timer_current_time() - buttonLastPressedTime > 6000)&&
             buttonLastPressedTime != -1){
             //Time to send it has been a while
               uBit.display.scroll("Sending");
                 uBit.sleep(300);
                 getChars();
                 send();
-          /*  for (int i = 0; i <= userMessage.tail; i++){
-              uBit.display.print(userMessage.buffer[i]);
-              uBit.sleep(500);
-              uBit.display.clear();
-              uBit.sleep(500);
-            }
-            */ //Debug
 
             buttonLastPressedTime = -1; //default value
             userMessage.tail = 0; //Reset the tail
-
-            }
+          }else if ( (system_timer_current_time() - buttonLastPressedTime > 3000)&&(system_timer_current_time() - buttonLastPressedTime <= 6000)
+                && (buttonLastPressedTime != -1) && (spaceRan == false)){
+                  spaceRan = true;
+                  uBit.display.scroll("_",40);
+                  userMessage.buffer[userMessage.tail] = BREAK;
+                  userMessage.tail += 1;
+                }
       uBit.sleep(100);
       }
     }
