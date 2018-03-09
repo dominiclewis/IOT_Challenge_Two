@@ -74,7 +74,7 @@ void getMessage(){
         userMessage.tail += 1;
         uBit.display.print(".");//0
         uBit.sleep(500);
-      }else if(delta > 4000){
+      }else if(delta > 2500){
       userMessage.buffer[userMessage.tail] = BREAK; //break
       userMessage.tail += 1;
       uBit.display.print("_");

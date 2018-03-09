@@ -8,6 +8,8 @@
 #define DASH '-'
 #define DOT '.'
 #define BREAK 'B'
+#define MIN 0
+#define MAX 36
 
 void send();
 void listen(); //prototypes
@@ -26,9 +28,9 @@ int charBuffTail = 0;
 
 };
 //Vars
-const int alphabet[36] = {
+const int alphabet[37] = {
   'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V',
-  'W','X','Y','Z','1','2','3','4','5','6','7','8','9','0'
+  'W','X','Y','Z','1','2','3','4','5','6','7','8','9','0',' '
 };
 
 

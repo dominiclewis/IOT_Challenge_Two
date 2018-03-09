@@ -21,22 +21,16 @@ for (int i = 0; i<= userMessage.tail; i++){
     charEndIndex = i;
     tmp.clear();
     for(int x = charStartIndex; x<=charEndIndex; x++){
-      uBit.display.print(userMessage.buffer[x]);
-      uBit.sleep(500);
-      uBit.display.clear();
-      uBit.sleep(500);
+    //  uBit.display.print(userMessage.buffer[x]);
+    //  uBit.sleep(500);
+    //  uBit.display.clear();
+  //    uBit.sleep(500);
       tmp.push_back(userMessage.buffer[x]);
     }
-    //Look up tmp
-    uBit.display.print(tmp.c_str());
-    uBit.sleep(1000);
-    uBit.display.print("tst");
-    uBit.sleep(500);
-    uBit.display.clear();
-    uBit.sleep(100);
-    uBit.display.print(morseMap[tmp.c_str()]);
-    uBit.sleep(500);
-    userMessage.charBuffer[userMessage.charBuffTail] = morseMap[tmp];
+    //lOOK UP TMP
+//    uBit.display.print(morseMap[tmp.c_str()]);
+  //  uBit.sleep(500);
+    userMessage.charBuffer[userMessage.charBuffTail] = morseMap[tmp.c_str()];
 
     userMessage.charBuffTail += 1;
 
@@ -48,7 +42,29 @@ for (int i = 0; i<= userMessage.tail; i++){
 }
 for (int z =0; z<= userMessage.charBuffTail; z++){
   uBit.display.print(userMessage.charBuffer[z]);
-  uBit.sleep(5000);
+  uBit.sleep(1000);
+}
+}
+
+/*
+Encrypts with a Caesaer Cypher. Shifts chars 7 places right
+*/
+char encrypt(char charToChange){
+int shiftLeft = 7;
+//find chars index in our alphabet array
+for(int i = 0; i < 37; i++){
+  if(charToChange == alphabet[i]){
+    while(shiftLeft != 0){
+      if(i + 1 > MAX){
+        i = MIN;
+        i++;
+      } else{
+        i++;
+      }
+      shiftLeft -=1;
+    }
+    return alphabet[i];
+  }
 }
 }
 /*
@@ -60,8 +76,8 @@ void send(){
 
   uBit.sleep(100);
   if(uBit.serial.isWriteable() ==1 ){
-    for(int i  = 0; i <=userMessage.tail; i++){
-      uBit.serial.sendChar(userMessage.buffer[i],SYNC_SPINWAIT);//Send and block CPU
+    for(int i  = 0; i <=userMessage.charBuffTail; i++){
+      uBit.serial.sendChar(encrypt(userMessage.charBuffer[i]),SYNC_SPINWAIT);//Send and block CPU
       uBit.sleep(1000);
     }
 } else{
