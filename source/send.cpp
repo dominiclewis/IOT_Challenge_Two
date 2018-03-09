@@ -9,8 +9,14 @@ void getChars(){
   int charStartIndex =-1;
   int charEndIndex = -1;
   bool newRun = true;
-
+  userMessage.tail = userMessage.tail - 2;
   string tmp;
+  for (int i =0;i <=userMessage.tail; i++){
+    uBit.display.print(userMessage.buffer[i]);
+    uBit.sleep(1000);
+    uBit.display.clear();
+    uBit.sleep(200);
+  }
 
   //string tmp;
 for (int i = 0; i<= userMessage.tail; i++){
@@ -21,9 +27,8 @@ for (int i = 0; i<= userMessage.tail; i++){
   if((i + 1 > userMessage.tail) || (userMessage.buffer[i+1] == BREAK)){
     charEndIndex = i;
     tmp.clear();
+
     for(int x = charStartIndex; x<=charEndIndex; x++){
-    //  uBit.display.print(userMessage.buffer[x]);
-    //  uBit.sleep(500);
     //  uBit.display.clear();
   //    uBit.sleep(500);
       tmp.push_back(userMessage.buffer[x]);
@@ -32,7 +37,6 @@ for (int i = 0; i<= userMessage.tail; i++){
 //    uBit.display.print(morseMap[tmp.c_str()]);
   //  uBit.sleep(500);
     userMessage.charBuffer[userMessage.charBuffTail] = morseMap[tmp.c_str()];
-
     userMessage.charBuffTail += 1;
 
     if( (i+1) < userMessage.tail){

@@ -7,7 +7,7 @@
 
 #define DASH '-'
 #define DOT '.'
-#define BREAK 'B'
+#define BREAK '*'
 #define MIN 0
 #define MAX 36
 
