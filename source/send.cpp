@@ -7,11 +7,13 @@
  */
 #include "Shared.h"
 
-
+/*
+* Purpose: Gets the chars from the pending buffer, valides and sends
+* Accepts: ced
+* Returns:  c
+*/
 void getChars(){
   string tmp;
-  uBit.display.print(userMessage.tail);
-  uBit.sleep(1000);
 
   userMessage.tail = userMessage.tail - 1;
   for (int bufferChars = 0; bufferChars <=userMessage.tail; bufferChars++){
@@ -24,8 +26,8 @@ void getChars(){
     userMessage.charBuffer[userMessage.charBuffTail] = morseMap[tmp.c_str()];
     tmp.clear();
     //Store the value in the string
-    uBit.display.print(userMessage.charBuffTail);
-    uBit.sleep(1000);
+    //uBit.display.print(userMessage.charBuffTail);
+    uBit.sleep(400);
     uBit.display.clear();
     userMessage.charBuffTail++; //incre by one
   }
