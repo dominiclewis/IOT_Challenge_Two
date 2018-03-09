@@ -14,9 +14,10 @@
 MicroBit uBit;
 MicroBitButton buttonA(MICROBIT_PIN_BUTTON_A, MICROBIT_ID_BUTTON_A);
 message userMessage; //our struct
-
+std::map<string,char> morseMap;//Map for DASH
 int64_t buttonLastPressedTime = -1; //default value
 bool mode = false;
+
 /*
 *Purpose: Event handler for a button
 *Accepts: Event object
@@ -95,7 +96,9 @@ int main()
     uBit.init();
     uBit.display.scroll("MORSE CODE",100);
     uBit.sleep(500);
-
+    morseMap["tst"] = 's';
+    uBit.display.print(morseMap["tst"]);
+    uBit.sleep(5000);
     uBit.serial.redirect(MICROBIT_PIN_P0,MICROBIT_PIN_P1);// tx,rx (redirect here so global)
 
     //Default buffer size is fine as circular I think

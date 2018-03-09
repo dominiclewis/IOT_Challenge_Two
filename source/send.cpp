@@ -5,6 +5,7 @@
 *Accepts: N/A
 */
 void send(){
+  uBit.sleep(100);
   if(uBit.serial.isWriteable() ==1 ){
     for(int i  = 0; i <=userMessage.tail; i++){
       uBit.serial.sendChar(userMessage.buffer[i],SYNC_SPINWAIT);//Send and block CPU
