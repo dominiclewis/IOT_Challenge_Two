@@ -26,6 +26,7 @@ The sending pin we use is P0 while P1 is the recieving one.
 The two MicroBits be connected with a crocodile clip. We are using the GPIO PIN0 to send and GPIO PIN1 to receive. As such the Microbit which has the clip attached to
 GPIO Pin 0 must be put into 'Send mode' and the one with the GPI01 attached clip in 'receive mode'.
 
+
 ## Modes
 The two MicroBits can be toggled into the corresponding listen and transmitting mode using
 the B Button.
@@ -51,6 +52,10 @@ I'm using the serial Microbit library to transfer characters, this allows me to 
 #Encryption
 I've implemented a Caesar Cipher on the input characters shifting them right 7 bits to encrypt the chars then carrying out the inverse operation to decrypt. This is easily managed in C++ by storing the alphabet in an array and monitoring the characters during the encryption to almost ensure that the array is circular.
 
+### Note
+The microbits enter into listen mode by default so the sender will need to be toggled out 
+
+
 Dominic Lewis
- 
+
 Casey Cheung
