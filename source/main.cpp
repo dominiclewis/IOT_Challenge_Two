@@ -7,9 +7,6 @@
  */
 #include "Shared.h"
 
-#define DASH '-'
-#define DOT '.'
-#define BREAK 'B'
 
 MicroBit uBit;
 MicroBitButton buttonA(MICROBIT_PIN_BUTTON_A, MICROBIT_ID_BUTTON_A);
@@ -80,7 +77,7 @@ void getMessage(){
       }else if(delta > 4000){
       userMessage.buffer[userMessage.tail] = BREAK; //break
       userMessage.tail += 1;
-      uBit.display.scroll("Break");
+      uBit.display.print("_");
       uBit.sleep(1000);
     }
     }
@@ -132,7 +129,6 @@ int main()
     morseMap["---.."] = (char)alphabet[33];//8
     morseMap["----."] = (char)alphabet[34];//9
     morseMap["-----"] = (char)alphabet[35];//0
-    uBit.display.print(morseMap[".-"]);
     //morseMap["tst"] = 's';
     //uBit.display.print(morseMap["tst"]);
     //uBit.sleep(5000);
@@ -149,11 +145,12 @@ int main()
         listen();
       } else{
         getMessage();
-        if ( (system_timer_current_time() - buttonLastPressedTime > 6000)&&
+        if ( (system_timer_current_time() - buttonLastPressedTime > 10000)&&
             buttonLastPressedTime != -1){
             //Time to send it has been a while
               uBit.display.scroll("Sending");
                 uBit.sleep(300);
+                getChars();
                 send();
           /*  for (int i = 0; i <= userMessage.tail; i++){
               uBit.display.print(userMessage.buffer[i]);
