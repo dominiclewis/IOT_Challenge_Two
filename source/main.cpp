@@ -15,15 +15,7 @@ int64_t buttonLastPressedTime = -1; //default value
 bool mode = false;
 std::map<string,char> morseMap;//Map for DASH
 
-/*
-*Purpose: Event handler for a button
-*Accepts: Event object
-*Returns: N/A
-*/
-void on_button_a(MicroBitEvent e) //Move left
-{
 
-}
 
 /*
 *Purpose: Event handler for b button
@@ -32,7 +24,9 @@ void on_button_a(MicroBitEvent e) //Move left
 */
 void on_button_b(MicroBitEvent e)
 {
-
+  if(mode){
+    uBit.reset();
+  }
   mode = !mode; //change between send and listen
   if(mode){
     uBit.display.scroll("SENDING",100);
@@ -135,8 +129,7 @@ int main()
     uBit.serial.redirect(MICROBIT_PIN_P0,MICROBIT_PIN_P1);// tx,rx (redirect here so global)
 
     //Default buffer size is fine as circular I think
-    //Listeners below
-    uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, on_button_a);
+    //Listener below
     uBit.messageBus.listen(MICROBIT_ID_BUTTON_B, MICROBIT_BUTTON_EVT_CLICK, on_button_b);
 
     while(1){
