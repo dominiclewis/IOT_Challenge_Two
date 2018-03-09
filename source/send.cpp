@@ -1,58 +1,13 @@
+/*
+* File: main.cpp
+* Author: Dominic Lewis
+* Date: 20180304
+* Desc: IOT Assignment 02
+* Note: Encode as a summative int eg. A  = DOT + DASH etc
+ */
 #include "Shared.h"
 
-/*
-*Purpose: Swaps our morse to chars
-*Returns: void
-*Accepts: N/A
-*/
-/*
-void getChars(){
-  int charStartIndex =0;
-  int charEndIndex = -1;
-  //bool newRun = true;
-  userMessage.tail = userMessage.tail -2;
 
-  string tmp;
-  for (int i =0;i <=userMessage.tail; i++){
-    uBit.display.print(userMessage.buffer[i]);
-    uBit.sleep(1000);
-    uBit.display.clear();
-    uBit.sleep(2000);
-  }
-  uBit.display.print(userMessage.tail);
-  uBit.sleep(1000);
-
-  //string tmp;
-for (int i = 0; i<= userMessage.tail; i++){
-  if((i + 1 >= userMessage.tail) || (userMessage.buffer[i+1] == BREAK)){
-    charEndIndex = i;
-    tmp.clear();
-
-    for(int x = charStartIndex; x<=charEndIndex; x++){
-    //  uBit.display.clear();
-  //    uBit.sleep(500);
-      tmp.push_back(userMessage.buffer[x]);
-    }
-    //lOOK UP TMP
-    uBit.display.print("Here",20);
-    uBit.sleep(400);
-    uBit.display.print(morseMap[tmp.c_str()]);
-    uBit.sleep(5000);
-    userMessage.charBuffer[userMessage.charBuffTail] = morseMap[tmp.c_str()];
-    userMessage.charBuffTail += 1;
-
-    if( (i+1) < userMessage.tail){
-      i +=1;
-      charStartIndex = i+=1;
-    }
-  }
-}
-for (int z =0; z<= userMessage.charBuffTail; z++){
-  uBit.display.print(userMessage.charBuffer[z]);
-  uBit.sleep(1000);
-}
-}
-*/
 void getChars(){
   string tmp;
   uBit.display.print(userMessage.tail);
@@ -79,7 +34,9 @@ void getChars(){
   }
 }
 /*
-Encrypts with a Caesaer Cypher. Shifts chars 7 places right
+* Purpose: Encrypts with a Caesaer Cypher. Shifts chars 7 places right
+* Accepts: char that needs to be encryped
+* Returns:  encrypted char ready for transmission
 */
 char encrypt(char charToChange){
 int shiftRight = 7;
@@ -100,7 +57,9 @@ for(int i = 0; i < 37; i++){
 }
 
 /*
-decrypt with a Caesaer Cypher. Shifts chars 7 places left
+* Purpose: Decrypt with a Caesaer Cypher. Shifts chars 7 places left
+* Accepts: char that needs to be Decrypteed
+* Returns:  char ready for display
 */
 char decrypt(char charToChange){
 int shiftLeft = 7;

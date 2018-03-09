@@ -1,9 +1,12 @@
+/*
+* File: main.cpp
+* Author: Dominic Lewis
+* Date: 20180304
+* Desc: IOT Assignment 02
+* Note: Encode as a summative int eg. A  = DOT + DASH etc
+ */
 #include "MicroBit.h"
 #include <map>
-
-//This is extern because the memory is allocated in our shard.h
-//this means that it is effectivly shared between any .h file that also declares
-//extern uBit has 'extern' (pls be true). ps. it's because it's .init elsewhere
 
 #define DASH '-'
 #define DOT '.'
