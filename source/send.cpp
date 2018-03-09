@@ -50,16 +50,36 @@ for (int z =0; z<= userMessage.charBuffTail; z++){
 Encrypts with a Caesaer Cypher. Shifts chars 7 places right
 */
 char encrypt(char charToChange){
+int shiftRight = 7;
+//find chars index in our alphabet array
+for(int i = 0; i < 37; i++){
+  if(charToChange == alphabet[i]){
+    while(shiftRight != 0){
+      if(i + 1 > MAX){
+        i = MIN;
+      } else{
+        i++;
+      }
+      shiftRight -=1;
+    }
+    return alphabet[i];
+  }
+}
+}
+
+/*
+decrypt with a Caesaer Cypher. Shifts chars 7 places left
+*/
+char decrypt(char charToChange){
 int shiftLeft = 7;
 //find chars index in our alphabet array
 for(int i = 0; i < 37; i++){
   if(charToChange == alphabet[i]){
     while(shiftLeft != 0){
-      if(i + 1 > MAX){
-        i = MIN;
-        i++;
+      if(i -1 < MIN){
+        i = MAX;
       } else{
-        i++;
+        i--;
       }
       shiftLeft -=1;
     }
@@ -67,6 +87,8 @@ for(int i = 0; i < 37; i++){
   }
 }
 }
+
+
 /*
 *Purpose: Sends one char at a time
 *Returns: void
@@ -94,7 +116,7 @@ userMessage.charBuffTail = 0;
 */
 void listen(){
 //if(uBit.serial.isReadable() == 0){//Data waiting? API is wrong
-  char val = uBit.serial.read(ASYNC);
+  char val = decrypt(uBit.serial.read(ASYNC));
   uBit.sleep(200);
   uBit.display.print(val);
   uBit.sleep(1000);
